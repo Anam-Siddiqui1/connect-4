@@ -1,0 +1,410 @@
+:root {
+  --plastic: #1b2fc9;
+  --plastic-dark: #1222a3;
+  --plastic-light: #3c50e6;
+  --hollow: #0a1064;
+  --cream: #fff6e3;
+  --muted: #bcc5f7;
+  --red: #f0412b;
+  --red-dark: #c02c19;
+  --red-text: #ff8d78;
+  --yellow: #ffd21f;
+  --yellow-dark: #dfae00;
+  --ink: #0a1064;
+  --page-gap: clamp(16px, 3vw, 40px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--plastic);
+  color: var(--cream);
+  font-family: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Layout: the page itself is the plastic of the game */
+.game {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "heading board"
+    "info board";
+  column-gap: clamp(32px, 5vw, 88px);
+  min-height: 100svh;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: var(--page-gap);
+}
+
+.heading { grid-area: heading; }
+.info { grid-area: info; }
+.board-area { grid-area: board; }
+
+/* Title */
+h1 {
+  font-family: "Bowlby One", Impact, sans-serif;
+  font-size: clamp(2.6rem, 5vw, 6rem);
+  font-weight: 400;
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+h1 span {
+  display: block;
+  white-space: nowrap;
+}
+
+.title-disc {
+  display: inline-block;
+  width: 0.76em;
+  height: 0.76em;
+  margin: 0 0.05em;
+  border-radius: 50%;
+}
+
+.title-disc.red { background: var(--red); }
+.title-disc.yellow { background: var(--yellow); }
+
+/* Status */
+.status {
+  margin-top: clamp(16px, 3vh, 32px);
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.detail {
+  min-height: 2.8em;
+  margin-top: 6px;
+  line-height: 1.4;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+/* Rules */
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: clamp(20px, 4vh, 44px);
+}
+
+h2 {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.rules {
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.rules li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+  color: var(--cream);
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  font-weight: 600;
+  transition: color 160ms;
+}
+
+.rule-number {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.1em;
+  height: 2.1em;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.8em;
+  font-weight: 700;
+  transition: background-color 160ms, color 160ms, border-color 160ms;
+}
+
+.rules li.passed {
+  color: var(--muted);
+}
+
+.rules li.checking .rule-number {
+  background: var(--cream);
+  border-color: var(--cream);
+  color: var(--ink);
+}
+
+.rules li.fired {
+  color: var(--yellow);
+}
+
+.rules li.fired .rule-number {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--ink);
+}
+
+/* Scores */
+.score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.scores {
+  display: flex;
+  gap: clamp(20px, 3vw, 40px);
+}
+
+dt {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+dd {
+  margin: 0;
+  font-family: "Bowlby One", Impact, sans-serif;
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.15;
+}
+
+#score-human { color: var(--red-text); }
+#score-computer { color: var(--yellow); }
+
+.new-game {
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--cream);
+  color: var(--ink);
+  font: 700 1rem/1.05 "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  transition: transform 140ms, background-color 140ms;
+}
+
+.new-game:hover { transform: scale(1.06); }
+.new-game:active { transform: scale(0.96); }
+.new-game.ready { background: var(--yellow); }
+
+/* Board. Total height equals its width: six rows plus one row above for the waiting disc. */
+.board-area {
+  align-self: center;
+  width: min(100%, calc(100svh - 2 * var(--page-gap)));
+  min-width: min(58vw, calc(100svh - 2 * var(--page-gap)));
+  padding-top: calc(100% / 7);
+}
+
+.board {
+  position: relative;
+  aspect-ratio: 7 / 6;
+}
+
+.back {
+  position: absolute;
+  inset: 1%;
+  background: var(--hollow);
+}
+
+/* Discs sit behind the plate, so they are only seen through the holes.
+   The clip lets them slide out of the bottom when a new game starts. */
+.discs {
+  position: absolute;
+  inset: 0;
+  clip-path: inset(-20% 0 0 0);
+}
+
+.disc {
+  position: absolute;
+  top: calc(var(--row) * 100% / 6);
+  left: calc(var(--col) * 100% / 7);
+  width: calc(100% / 7);
+  height: calc(100% / 6);
+  animation: drop var(--drop-time) both;
+}
+
+.disc::before,
+.disc::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.disc::before {
+  inset: 6%;
+  background: var(--disc-color);
+}
+
+.disc::after {
+  inset: 22%;
+  border: max(2px, 0.4vmin) solid var(--disc-ring);
+}
+
+.disc.red {
+  --disc-color: var(--red);
+  --disc-ring: var(--red-dark);
+}
+
+.disc.yellow {
+  --disc-color: var(--yellow);
+  --disc-ring: var(--yellow-dark);
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(calc((var(--row) + 1) * -100%));
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.6);
+  }
+  68% {
+    transform: translateY(0);
+    animation-timing-function: ease-out;
+  }
+  82% {
+    transform: translateY(-9%);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.preview {
+  --row: -1;
+  opacity: 0;
+  animation: none;
+  transition: left 110ms ease-out, opacity 110ms;
+}
+
+.preview.visible {
+  opacity: 1;
+}
+
+.plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.plate-face { fill: var(--plastic); }
+
+.rim-light,
+.rim-dark {
+  fill: none;
+  stroke-width: 3;
+}
+
+.rim-light { stroke: var(--plastic-light); }
+.rim-dark { stroke: var(--plastic-dark); }
+
+.columns {
+  position: absolute;
+  inset: calc(-100% / 6) 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.column {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.column[aria-disabled="true"] {
+  cursor: default;
+}
+
+.column:focus-visible,
+.new-game:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: -3px;
+}
+
+.new-game:focus-visible {
+  outline-color: var(--yellow);
+  outline-offset: 3px;
+}
+
+/* End of game */
+.discs.finished .disc:not(.winning, .preview) {
+  opacity: 0.55;
+  transition: opacity 400ms;
+}
+
+.disc.winning::after {
+  border-color: var(--cream);
+  animation: glow 900ms ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  to { transform: scale(1.22); }
+}
+
+/* New game: the discs fall out of the bottom, like pulling the real toy's lever */
+.discs.emptying .disc:not(.preview) {
+  animation: none;
+  opacity: 1;
+  transform: translateY(calc((6 - var(--row)) * 100%));
+  transition: transform 420ms cubic-bezier(0.5, 0, 1, 0.6) calc(var(--col) * 24ms);
+}
+
+/* Phones and narrow windows */
+@media (max-width: 860px) {
+  .game {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      "heading"
+      "board"
+      "info";
+  }
+
+  h1 {
+    font-size: clamp(2.7rem, 14vw, 5rem);
+  }
+
+  .board-area {
+    width: 100%;
+    min-width: 0;
+    padding-top: calc(100% / 7);
+  }
+
+  .info {
+    padding-top: 28px;
+  }
+}
+
+/* Short laptop screens */
+@media (min-width: 861px) and (max-height: 700px) {
+  h1 { font-size: clamp(2.8rem, 5vw, 4rem); }
+  .status { margin-top: 12px; font-size: 1.6rem; }
+  .info { padding-top: 12px; }
+  .rules li { padding: 3px 0; font-size: 1.05rem; }
+  .new-game { width: 76px; height: 76px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disc {
+    animation-duration: 1ms;
+  }
+
+  .disc.winning::after {
+    animation: none;
+  }
+
+  .discs.emptying .disc:not(.preview) {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+}

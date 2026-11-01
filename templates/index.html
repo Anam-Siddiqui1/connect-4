@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect Four</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><circle cx='5' cy='5' r='5' fill='%23f0412b'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Familjen+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="game">
+    <header class="heading">
+      <h1 aria-label="Connect Four">
+        <span aria-hidden="true">C<i class="title-disc red"></i>nnect</span>
+        <span aria-hidden="true">F<i class="title-disc yellow"></i>ur</span>
+      </h1>
+      <div aria-live="polite">
+        <p class="status" id="status">Your move.</p>
+        <p class="detail" id="detail">You are red. Click a column to drop a disc.</p>
+      </div>
+    </header>
+
+    <section class="board-area" aria-label="Game board">
+      <div class="board" id="board">
+        <div class="back"></div>
+        <div class="discs" id="discs">
+          <div class="disc red preview" id="preview"></div>
+        </div>
+
+        <svg class="plate" viewBox="0 0 {{ cols * 100 }} {{ rows * 100 }}" aria-hidden="true">
+          <mask id="holes">
+            <rect width="100%" height="100%" fill="#fff"/>
+            {% for row in range(rows) %}{% for col in range(cols) %}
+            <circle cx="{{ col * 100 + 50 }}" cy="{{ row * 100 + 50 }}" r="41" fill="#000"/>
+            {% endfor %}{% endfor %}
+          </mask>
+          <rect class="plate-face" width="100%" height="100%" mask="url(#holes)"/>
+          {% for row in range(rows) %}{% for col in range(cols) %}
+          <circle class="rim-light" cx="{{ col * 100 + 50 }}" cy="{{ row * 100 + 53 }}" r="42"/>
+          <circle class="rim-dark" cx="{{ col * 100 + 50 }}" cy="{{ row * 100 + 50 }}" r="42"/>
+          {% endfor %}{% endfor %}
+        </svg>
+
+        <div class="columns">
+          {% for col in range(cols) %}
+          <button class="column" data-col="{{ col }}" aria-label="Drop a disc in column {{ col + 1 }}"></button>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div>
+        <h2>How the computer decides</h2>
+        <ol class="rules" id="rules">
+          <li data-rule="1"><span class="rule-number">1</span>Win if it can</li>
+          <li data-rule="2"><span class="rule-number">2</span>Block your winning move</li>
+          <li data-rule="3"><span class="rule-number">3</span>Otherwise, stay near the centre</li>
+        </ol>
+      </div>
+
+      <div class="score-row">
+        <dl class="scores">
+          <div><dt>You</dt><dd id="score-human">0</dd></div>
+          <div><dt>Draws</dt><dd id="score-draw">0</dd></div>
+          <div><dt>Computer</dt><dd id="score-computer">0</dd></div>
+        </dl>
+        <button class="new-game" id="new-game">New game</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
