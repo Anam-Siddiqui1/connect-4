@@ -151,6 +151,34 @@ h2 {
   color: var(--ink);
 }
 
+/* GitHub link */
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 1rem;
+  text-underline-offset: 3px;
+  transition: color 140ms;
+}
+
+.github-link svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.github-link:hover {
+  color: var(--cream);
+}
+
+.github-link:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 3px;
+}
+
 /* Scores */
 .score-row {
   display: flex;
